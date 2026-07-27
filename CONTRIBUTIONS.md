@@ -20,6 +20,7 @@ for details!
 * [Anatoly Bubenkov](mailto:bubenkoff@gmail.com) (@bubenkoff)
 * [Ben Harris](mailto:mail@bharr.is) (@bharrisau)
 * [Daniel Ziegenberg](mailto:daniel@ziegenberg.at) (@ziegenberg)
+* [Filipe Santos](mailto:git@not.sh) (horjulf)
 * [Ignacio Serrano](mailto:ignic@ignic.com) (@ignic)
 * [Ilya Kulakov](mailto:kulakov.ilya@gmail.com) (@Kentzo)
 * [Leonardo David Monteiro](mailto:leo@cub3.xyz) (@leosfsm)
