@@ -72,7 +72,7 @@
       :local Data false;
       :local TimeOut [ $EitherOr [ :totime ($List->"timeout") ] $FwAddrListTimeOut ];
 
-      :foreach Cert in=[ :toarray delimiter=":" ($List->"cert") ] do={
+      :foreach Cert in=[ :toarray delimiter=":" [ :tostr ($List->"cert") ] ] do={
         :if ([ :len ($Cert) ] > 0) do={
           :set CheckCertificate true;
           :if ([ $CertificateAvailable $Cert "fetch" ] = false) do={
