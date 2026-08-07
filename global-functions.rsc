@@ -172,6 +172,7 @@
 
   :global CertificateNameByCN;
   :global CleanName;
+  :global IfThenElse;
   :global FetchUserAgentStr;
   :global LogPrint;
   :global RmFile;
@@ -222,7 +223,8 @@
   }
 
   :foreach Cert in=[ /certificate/find where name~("^" . $FileName . "_[0-9]+\$") ] do={
-    $CertificateNameByCN [ /certificate/get $Cert common-name ];
+    $CertificateNameByCN [ $IfThenElse ([ /certificate/get $Cert unit ] = $CommonName) \
+      $CommonName [ /certificate/get $Cert common-name ] ];
   }
   :return true;
 }
