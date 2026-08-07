@@ -133,23 +133,23 @@
   :local CertSettings [ /certificate/settings/get ];
   :if ((($CertSettings->"builtin-trust-store") ~ $UseFor || \
         ($CertSettings->"builtin-trust-store") = "all") && \
-       [ :len [ /certificate/builtin/find where common-name=$CommonName ] ] > 0) do={
+       [ :len [ /certificate/builtin/find where common-name=$CommonName or unit=$CommonName ] ] > 0) do={
     :return true;
   }
 
-  :if ([ :len [ /certificate/find where common-name=$CommonName ] ] = 0) do={
+  :if ([ :len [ /certificate/find where common-name=$CommonName or unit=$CommonName ] ] = 0) do={
     $LogPrint info $0 ("Certificate with CommonName '" . $CommonName . "' not available.");
     :if ([ $CertificateDownload $CommonName ] = false) do={
       :return false;
     }
   }
 
-  :if ([ :len [ /certificate/find where common-name=$CommonName ] ] > 1) do={
+  :if ([ :len [ /certificate/find where common-name=$CommonName or unit=$CommonName ] ] > 1) do={
     $LogPrint info $0 ("There are " . $CertCount . " Certificates with CommonName '" . $CommonName . "'. Should be ok.");
     :return true;
   }
 
-  :local CertVal [ /certificate/get [ find where common-name=$CommonName ] ];
+  :local CertVal [ /certificate/get [ find where common-name=$CommonName or unit=$CommonName ] ];
   :while (($CertVal->"akid") != "" && ($CertVal->"akid") != ($CertVal->"skid")) do={
     :if ([ :len [ /certificate/find where skid=($CertVal->"akid") ] ] = 0) do={
       :local IssuerCN ([ $ParseKeyValueStore ($CertVal->"issuer") ]->"CN");
@@ -172,6 +172,7 @@
 
   :global CertificateNameByCN;
   :global CleanName;
+  :global IfThenElse;
   :global FetchUserAgentStr;
   :global LogPrint;
   :global RmFile;
@@ -215,14 +216,15 @@
   :delay 1s;
   $RmFile $FileName;
 
-  :if ([ :len [ /certificate/find where common-name=$CommonName ] ] = 0) do={
+  :if ([ :len [ /certificate/find where common-name=$CommonName or unit=$CommonName ] ] = 0) do={
     /certificate/remove [ find where name~("^" . $FileName . "_[0-9]+\$") ];
     $LogPrint warning $0 ("Certificate with CommonName '" . $CommonName . "' still unavailable!");
     :return false;
   }
 
   :foreach Cert in=[ /certificate/find where name~("^" . $FileName . "_[0-9]+\$") ] do={
-    $CertificateNameByCN [ /certificate/get $Cert common-name ];
+    $CertificateNameByCN [ $IfThenElse ([ /certificate/get $Cert unit ] = $CommonName) \
+      $CommonName [ /certificate/get $Cert common-name ] ];
   }
   :return true;
 }
@@ -234,11 +236,23 @@
   :global CleanName;
   :global LogPrint;
 
-  :local Cert ([ /certificate/find where (common-name=$Match or fingerprint=$Match or name=$Match) ]->0);
+  :local Cert [ /certificate/find where unit=$Match ];
+  :if ([ :len $Cert ] = 1) do={
+    /certificate/set $Cert name=[ $CleanName $Match ];
+    :return true;
+  }
+
+  :set Cert [ /certificate/find where common-name=$Match or fingerprint=$Match or name=$Match ];
+  :if ([ :len $Cert ] > 1) do={
+    $LogPrint warning $0 ("Too many matching certificates found.");
+    :return false;
+  }
+
   :if ([ :len $Cert ] = 0) do={
     $LogPrint warning $0 ("No matching certificate found.");
     :return false;
   }
+
   :local CommonName [ /certificate/get $Cert common-name ];
   /certificate/set $Cert name=[ $CleanName $CommonName ];
   :return true;
