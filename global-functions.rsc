@@ -234,7 +234,13 @@
   :global CleanName;
   :global LogPrint;
 
-  :local Cert ([ /certificate/find where (common-name=$Match or fingerprint=$Match or name=$Match) ]->0);
+  :local Cert [ /certificate/find where unit=$Match ];
+  :if ([ :len $Cert ] = 1) do={
+    /certificate/set $Cert name=[ $CleanName $Match ];
+    :return true;
+  }
+
+  :set Cert ([ /certificate/find where (common-name=$Match or fingerprint=$Match or name=$Match) ]->0);
   :if ([ :len $Cert ] = 0) do={
     $LogPrint warning $0 ("No matching certificate found.");
     :return false;
