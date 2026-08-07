@@ -71,6 +71,20 @@ is no output. Otherwise the certificate is downloaded and imported.
 If importing a certificate with that exact name fails a warning is given
 and nothing is actually imported.
 
+Certificate by Organizational Unit
+----------------------------------
+
+There are some rare cases where the *Common Name* is not unique, for example
+several certificates with name "`GlobalSign`" do exist. To download and
+import these (from [mkcert.org ↗️](https://mkcert.org)) it may be required to
+use the *Organizational Unit*.
+
+![screenshot: certificate by OU](CERTIFICATES.d/05-cert-from-OU.avif)
+
+In this special case run:
+
+    $CertificateAvailable "GlobalSign Root CA - R3" "fetch";
+
 See also
 --------
 
