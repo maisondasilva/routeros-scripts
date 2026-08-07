@@ -133,23 +133,23 @@
   :local CertSettings [ /certificate/settings/get ];
   :if ((($CertSettings->"builtin-trust-store") ~ $UseFor || \
         ($CertSettings->"builtin-trust-store") = "all") && \
-       [ :len [ /certificate/builtin/find where common-name=$CommonName ] ] > 0) do={
+       [ :len [ /certificate/builtin/find where common-name=$CommonName or unit=$CommonName ] ] > 0) do={
     :return true;
   }
 
-  :if ([ :len [ /certificate/find where common-name=$CommonName ] ] = 0) do={
+  :if ([ :len [ /certificate/find where common-name=$CommonName or unit=$CommonName ] ] = 0) do={
     $LogPrint info $0 ("Certificate with CommonName '" . $CommonName . "' not available.");
     :if ([ $CertificateDownload $CommonName ] = false) do={
       :return false;
     }
   }
 
-  :if ([ :len [ /certificate/find where common-name=$CommonName ] ] > 1) do={
+  :if ([ :len [ /certificate/find where common-name=$CommonName or unit=$CommonName ] ] > 1) do={
     $LogPrint info $0 ("There are " . $CertCount . " Certificates with CommonName '" . $CommonName . "'. Should be ok.");
     :return true;
   }
 
-  :local CertVal [ /certificate/get [ find where common-name=$CommonName ] ];
+  :local CertVal [ /certificate/get [ find where common-name=$CommonName or unit=$CommonName ] ];
   :while (($CertVal->"akid") != "" && ($CertVal->"akid") != ($CertVal->"skid")) do={
     :if ([ :len [ /certificate/find where skid=($CertVal->"akid") ] ] = 0) do={
       :local IssuerCN ([ $ParseKeyValueStore ($CertVal->"issuer") ]->"CN");
