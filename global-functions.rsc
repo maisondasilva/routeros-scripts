@@ -215,7 +215,7 @@
   :delay 1s;
   $RmFile $FileName;
 
-  :if ([ :len [ /certificate/find where common-name=$CommonName ] ] = 0) do={
+  :if ([ :len [ /certificate/find where common-name=$CommonName or unit=$CommonName ] ] = 0) do={
     /certificate/remove [ find where name~("^" . $FileName . "_[0-9]+\$") ];
     $LogPrint warning $0 ("Certificate with CommonName '" . $CommonName . "' still unavailable!");
     :return false;
